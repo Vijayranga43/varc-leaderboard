@@ -1,156 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Arc Testnet Leaderboard & Wallet Checker</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { font-family: system-ui, sans-serif; background: #0f172a; color: white; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VARC Leaderboard - Arc Testnet</title>
+    <style>
+        body { background: #0f0f0f; color: #fff; font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        h1 { color: #00ff9d; }
+        table { width: 90%; margin: 20px auto; border-collapse: collapse; background: #1a1a1a; }
+        th, td { padding: 12px; border: 1px solid #00ff9d; }
+        th { background: #00ff9d; color: black; }
+        input, button { padding: 12px; margin: 10px; font-size: 16px; }
+        button { background: #00ff9d; color: black; border: none; border-radius: 8px; font-weight: bold; }
+        #result { margin: 20px; padding: 15px; background: #222; border-radius: 10px; font-size: 18px; }
+        a { color: #00ff9d; }
+    </style>
 </head>
-<body class="p-6 max-w-4xl mx-auto">
-  <h1 class="text-4xl font-bold text-center mb-2">Arc Testnet Leaderboard</h1>
-  <p class="text-center text-gray-400 mb-8">Most Active Wallets + Wallet Stats Checker</p>
-
-  <!-- Search Section -->
-  <div class="bg-gray-800 p-6 rounded-2xl mb-10">
-    <p class="text-lg mb-3">Check Your Wallet</p>
-    <div class="flex gap-3">
-      <input id="walletInput" 
-             type="text" 
-             placeholder="0x..." 
-             class="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-5 py-3 text-white focus:outline-none focus:border-blue-500">
-      <button onclick="checkWallet()" 
-              class="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-xl font-semibold">
-        Check
-      </button>
-    </div>
-    <div id="result" class="mt-6"></div>
-  </div>
-
-  <!-- Leaderboard Table -->
-  <h2 class="text-2xl mb-4">Top 10 Most Active Wallets</h2>
-  <div class="overflow-x-auto">
-    <table class="w-full border-collapse">
-      <thead>
-        <tr class="bg-gray-900">
-          <th class="p-4 text-left">Rank</th>
-          <th class="p-4 text-left">Wallet Address</th>
-          <th class="p-4 text-right">Tx Count</th>
-        </tr>
-      </thead>
-      <tbody id="leaderboard" class="text-gray-300">
-        <!-- JS fills this -->
-      </tbody>
+<body>
+    <h1>🚀 VARC Leaderboard - Arc Testnet</h1>
+    <p><strong>Arc Testnet Total Transactions:</strong> ~260,000,000+ (live check: <a href="https://testnet.arcscan.app/" target="_blank">testnet.arcscan.app</a>)</p>
+    
+    <h2>Top 10 Most Active Wallets (Example - Real soon)</h2>
+    <table>
+        <tr><th>Rank</th><th>Wallet</th><th>Tx Count</th></tr>
+        <tr><td>1</td><td>0x360000...</td><td>11</td></tr>
+        <tr><td>2</td><td>0x123456...</td><td>12</td></tr>
+        <tr><td>3</td><td>0xabcdef...</td><td>10</td></tr>
+        <tr><td>4</td><td>0x789abc...</td><td>9</td></tr>
+        <tr><td>5</td><td>0xdef123...</td><td>8</td></tr>
+        <tr><td>6</td><td>0x456789...</td><td>7</td></tr>
+        <tr><td>7</td><td>0xabc456...</td><td>6</td></tr>
+        <tr><td>8</td><td>0x123def...</td><td>5</td></tr>
+        <tr><td>9</td><td>0x789def...</td><td>4</td></tr>
+        <tr><td>10</td><td>0xabc123...</td><td>3</td></tr>
     </table>
-  </div>
+    <p><small>Note: Yeh abhi example hai. Real top 10 jaldi add karunga!</small></p>
 
-  <script>
-    // Update this array with current top 10 from the site (copy truncated addresses + tx)
-    const top10 = [
-      { rank: 1, wallet: "0x360000...000000", tx: 11 },
-      { rank: 2, wallet: "0xff5cb2...a6e8d1", tx: 12 },
-      { rank: 3, wallet: "0xf3bf07...35b9d3", tx: 5 },
-      { rank: 4, wallet: "0x2d84d7...add457", tx: 4 },
-      { rank: 5, wallet: "0x737422...141023", tx: 4 },
-      { rank: 6, wallet: "0x2d7863...1d59c2", tx: 3 },
-      { rank: 7, wallet: "0xa3d9fb...f468a2", tx: 3 },
-      { rank: 8, wallet: "0xbf4479...94275f", tx: 3 },
-      { rank: 9, wallet: "0x65a860...8bfd98", tx: 2 },
-      { rank: 10, wallet: "0x363cc7...e7ba43", tx: 2 }
-    ];
+    <div style="margin: 30px 0; padding: 20px; background: #1a1a1a; border-radius: 10px;">
+        <h2 style="color: #00ff9d;">Check Your Wallet (Real Data)</h2>
+        <input type="text" id="walletInput" placeholder="0xYourWalletAddress..." 
+               style="width: 90%; padding: 12px; background: #222; color: white; border: 1px solid #00ff9d;">
+        <br>
+        <button onclick="checkWallet()">Check Tx Count & Approx Rank</button>
+        <div id="result"></div>
+    </div>
 
-    function renderTable() {
-      const tbody = document.getElementById('leaderboard');
-      tbody.innerHTML = '';
-      top10.forEach(item => {
-        const row = `<tr class="border-t border-gray-800 hover:bg-gray-900">
-          <td class="p-4 font-bold">#${item.rank}</td>
-          <td class="p-4 font-mono">${item.wallet}</td>
-          <td class="p-4 text-right font-bold">${item.tx}</td>
-        </tr>`;
-        tbody.innerHTML += row;
-      });
-    }
+    <p>Made with ❤️ by me | Suggestions? DM me!</p>
 
-    async function checkWallet() {
-      const input = document.getElementById('walletInput').value.trim().toLowerCase();
-      const resultDiv = document.getElementById('result');
-      
-      if (!input || !input.startsWith('0x') || input.length !== 42) {
-        resultDiv.innerHTML = `<span class="text-red-500">Invalid wallet address (must be 0x... 42 chars)</span>`;
-        return;
-      }
+<script>
+async function checkWallet() {
+  const address = document.getElementById('walletInput').value.trim();
+  const resultDiv = document.getElementById('result');
+  
+  if (!address || !address.startsWith('0x')) {
+    resultDiv.innerHTML = '<span style="color:red;">Sahi 0x address daal bhai!</span>';
+    return;
+  }
 
-      resultDiv.innerHTML = `<span class="text-yellow-500">Fetching from Arc Testnet...</span>`;
+  resultDiv.innerHTML = 'Fetching real data from Arc Testnet... ⏳';
 
-      try {
-        const explorerLink = `https://testnet.arcscan.app/address/${input}`;
+  try {
+    const res = await fetch(`https://testnet.arcscan.app/api?module=account&action=txlistcount&address=${address}`);
+    const data = await res.json();
+    const txCount = parseInt(data.result) || 0;
 
-        const [addrRes, lastTxRes, firstTxRes] = await Promise.all([
-          fetch(`https://testnet.arcscan.app/api/v2/addresses/${input}`),
-          fetch(`https://testnet.arcscan.app/api?module=account&action=txlist&address=${input}&sort=desc&page=1&offset=1`),
-          fetch(`https://testnet.arcscan.app/api?module=account&action=txlist&address=${input}&sort=asc&page=1&offset=1`)
-        ]);
+    let approxRank = '';
+    if (txCount > 100) approxRank = '🔥 Approx Top 5,000+ (bahut active!)';
+    else if (txCount > 20) approxRank = '👍 Approx Top 50,000+ (achha grind!)';
+    else if (txCount > 11) approxRank = '✅ Top 10 se better – rank upar aa sakta hai';
+    else approxRank = '📉 Top 10 mein nahi (11 tx wale top pe). Zyada tx kar!';
 
-        const addrData = await addrRes.json();
-        const lastData = await lastTxRes.json();
-        const firstData = await firstTxRes.json();
-
-        const balanceWei = addrData.coin_balance || "0";
-        let balanceARC = "0";
-        if (balanceWei !== "0") {
-          balanceARC = (BigInt(balanceWei) / BigInt(10**18)).toString();
-        }
-
-        let lastHash = "N/A", lastDate = "N/A";
-        if (lastData.status === "1" && lastData.result && lastData.result.length > 0) {
-          const tx = lastData.result[0];
-          lastHash = tx.hash;
-          lastDate = new Date(Number(tx.timeStamp) * 1000).toLocaleString();
-        }
-
-        let firstHash = "N/A", firstDate = "N/A";
-        if (firstData.status === "1" && firstData.result && firstData.result.length > 0) {
-          const tx = firstData.result[0];
-          firstHash = tx.hash;
-          firstDate = new Date(Number(tx.timeStamp) * 1000).toLocaleString();
-        }
-
-        resultDiv.innerHTML = `
-          <div class="bg-green-900 border border-green-600 rounded-xl p-5 mt-4">
-            <p class="text-green-400 font-bold mb-3">Wallet Details</p>
-            <p><strong>Address:</strong> ${input}</p>
-            <p class="text-xl mt-2"><strong>Balance:</strong> ${balanceARC} ARC</p>
-            
-            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p class="text-gray-300">First Transaction</p>
-                <p class="font-mono text-sm break-all">${firstHash}</p>
-                <p>${firstDate}</p>
-              </div>
-              <div>
-                <p class="text-gray-300">Last Transaction</p>
-                <p class="font-mono text-sm break-all">${lastHash}</p>
-                <p>${lastDate}</p>
-              </div>
-            </div>
-            
-            <div class="mt-6">
-              <p class="font-bold">Total Transactions: Check on Explorer</p>
-              <a href="${explorerLink}" target="_blank" class="block mt-2 bg-blue-600 hover:bg-blue-700 text-center py-3 rounded-xl font-semibold">
-                View Full History & Exact Tx Count
-              </a>
-            </div>
-          </div>
-        `;
-      } catch (err) {
-        resultDiv.innerHTML = `<span class="text-red-500">Error fetching data. Try on <a href="https://testnet.arcscan.app/address/${input}" target="_blank" class="underline">Arc Explorer</a></span>`;
-      }
-    }
-
-    renderTable();
-  </script>
+    resultDiv.innerHTML = `
+      <strong style="color:#00ff9d;">Your Real Tx Count: ${txCount}</strong><br><br>
+      <strong>Approx Rank: ${approxRank}</strong><br><br>
+      <small>Global exact rank (#100001 jaisa) abhi nahi dikh sakta (19+ million wallets hain).<br>
+      Yeh real Arc explorer se aa raha hai. Grind more to climb up! 🚀</small>
+    `;
+  } catch(e) {
+    resultDiv.innerHTML = '<span style="color:red;">Error! Internet check kar ya address sahi daal.</span>';
+  }
+}
+</script>
 </body>
 </html>
