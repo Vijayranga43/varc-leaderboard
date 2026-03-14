@@ -5,102 +5,92 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Arc Testnet Leaderboard & Wallet Checker</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', system-ui, sans-serif; background: linear-gradient(to bottom, #0f172a, #020617); color: white; }
-    .arc-logo { width: 48px; height: 48px; } /* Placeholder for logo */
+    body { font-family: 'Inter', system-ui, sans-serif; background: linear-gradient(to bottom, #0f172a, #020617); }
   </style>
 </head>
 <body class="min-h-screen bg-gradient-to-b from-slate-950 to-black text-white">
-  <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-10">
+  <header class="bg-slate-900/80 border-b border-slate-700 sticky top-0">
     <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <!-- Arc Testnet Logo (use official or placeholder) -->
-        <img src="https://www.arc.network/logo.png" alt="Arc Testnet Logo" class="arc-logo rounded-full"> <!-- Replace with actual logo URL if you find one; else use placeholder or SVG -->
+        <!-- Arc Logo (placeholder - replace if you have better URL) -->
+        <img src="https://via.placeholder.com/48/3b82f6/ffffff?text=Arc" alt="Arc Testnet" class="rounded-full">
         <h1 class="text-2xl font-bold">Arc Testnet Leaderboard</h1>
       </div>
-      <p class="text-slate-400 text-sm">Powered by Blockscout Explorer</p>
+      <p class="text-slate-400">Live on Testnet</p>
     </div>
   </header>
 
   <main class="max-w-6xl mx-auto px-6 py-10">
-    <section class="mb-12">
-      <h2 class="text-3xl font-bold text-center mb-6">Check Your Wallet Stats</h2>
-      <p class="text-center text-slate-400 mb-8">Enter your wallet address to view balance, transaction history, and more on Arc Testnet.</p>
-
-      <div class="bg-slate-800/60 backdrop-blur-lg border border-slate-700 rounded-2xl p-8 shadow-2xl max-w-2xl mx-auto">
+    <section class="mb-12 text-center">
+      <h2 class="text-3xl font-bold mb-4">Wallet Checker</h2>
+      <p class="text-slate-400 mb-6">Enter your wallet address to view stats on Arc Testnet.</p>
+      <div class="max-w-xl mx-auto bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
         <div class="flex flex-col sm:flex-row gap-4">
-          <input id="walletInput" 
-                 type="text" 
-                 placeholder="0xYourWalletAddressHere..." 
-                 class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-500">
-          <button onclick="checkWallet()" 
-                  class="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-xl font-semibold transition-all shadow-md">
-            Check Wallet
-          </button>
+          <input id="walletInput" type="text" placeholder="0x..." class="flex-1 bg-slate-900 border border-slate-600 rounded-xl px-5 py-3 focus:outline-none focus:border-blue-500">
+          <button onclick="checkWallet()" class="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-xl font-semibold">Check</button>
         </div>
-        <div id="result" class="mt-8"></div>
+        <div id="result" class="mt-6"></div>
       </div>
     </section>
 
     <section>
-      <h2 class="text-3xl font-bold text-center mb-8">Top 10 Most Active Wallets</h2>
-      <div class="overflow-x-auto bg-slate-800/60 backdrop-blur-lg border border-slate-700 rounded-2xl shadow-2xl">
-        <table class="w-full border-collapse">
+      <h2 class="text-3xl font-bold text-center mb-6">Top 10 Active Wallets</h2>
+      <div class="overflow-x-auto bg-slate-800/50 border border-slate-700 rounded-2xl">
+        <table class="w-full">
           <thead class="bg-slate-900">
             <tr>
-              <th class="p-5 text-left font-semibold">Rank</th>
-              <th class="p-5 text-left font-semibold">Wallet Address</th>
-              <th class="p-5 text-right font-semibold">Transaction Count</th>
+              <th class="p-4 text-left">Rank</th>
+              <th class="p-4 text-left">Address</th>
+              <th class="p-4 text-right">Tx Count</th>
             </tr>
           </thead>
-          <tbody id="leaderboard" class="text-slate-300">
-            <!-- Filled by JS -->
-          </tbody>
+          <tbody id="leaderboard"></tbody>
         </table>
       </div>
     </section>
   </main>
 
-  <footer class="bg-slate-950 border-t border-slate-800 mt-12 py-6 text-center text-slate-500 text-sm">
-    <p>Arc Testnet Leaderboard & Wallet Checker • Data from Arc Testnet Explorer • Not affiliated with official Arc team</p>
-  </footer>
-
   <script>
-    // Update top10 with latest (copy from your site)
     const top10 = [
       { rank: 1, wallet: "0x360000...000000", tx: 11 },
       { rank: 2, wallet: "0xff5cb2...a6e8d1", tx: 12 },
-      // ... add all 10 from your current site
-    ];
+      { rank: 3, wallet: "0xf3bf07...35b9d3", tx: 5 },
+      { rank: 4, wallet: "0x2d84d7...add457", tx: 4 },
+      { rank: 5, wallet: "0x737422...141023", tx: 4 },
+      { rank: 6, wallet: "0x2d7863...1d59c2", tx: 3 },
+      { rank: 7, wallet: "0xa3d9fb...f468a2", tx: 3 },
+      { rank: 8, wallet: "0xbf4479...94275f", tx: 3 },
+      { rank: 9, wallet: "0x65a860...8bfd98", tx: 2 },
+      { rank: 10, wallet: "0x363cc7...e7ba43", tx: 2 }
+    ];  // Update from live site if changed
 
     function renderTable() {
       const tbody = document.getElementById('leaderboard');
       tbody.innerHTML = '';
       top10.forEach(item => {
-        const row = `<tr class="border-t border-slate-700 hover:bg-slate-700/50 transition-colors">
-          <td class="p-5 font-bold text-blue-400">#${item.rank}</td>
-          <td class="p-5 font-mono">${item.wallet}</td>
-          <td class="p-5 text-right font-bold">${item.tx}</td>
+        tbody.innerHTML += `<tr class="border-t border-slate-700 hover:bg-slate-700/50">
+          <td class="p-4 font-bold text-blue-400">#${item.rank}</td>
+          <td class="p-4 font-mono">${item.wallet}</td>
+          <td class="p-4 text-right">${item.tx}</td>
         </tr>`;
-        tbody.innerHTML += row;
       });
     }
 
     async function checkWallet() {
-      // Your previous checkWallet function here (with English text)
-      // Example: Change all messages to English
-      // resultDiv.innerHTML = `<span class="text-yellow-500">Fetching details from Arc Testnet...</span>`;
-      // And in result card: "Wallet Details", "Balance: ${balanceARC} ARC", etc.
-      // Keep the logic same as last version you had
-      // ...
-      // For total tx: Keep the prominent explorer link button as before
+      const input = document.getElementById('walletInput').value.trim();
+      const result = document.getElementById('result');
+      if (!input.startsWith('0x') || input.length !== 42) {
+        result.innerHTML = '<p class="text-red-500">Invalid address</p>';
+        return;
+      }
+      result.innerHTML = '<p class="text-yellow-500">Loading...</p>';
+      // Your full checkWallet logic here (from previous messages - balance, first/last tx, explorer link for total tx)
+      // Example placeholder
+      result.innerHTML = '<p class="text-green-400">Wallet: ' + input + '<br>Details loading... (add your full code)</p>';
     }
 
     renderTable();
   </script>
 </body>
-</html>            
-           
+</html>
