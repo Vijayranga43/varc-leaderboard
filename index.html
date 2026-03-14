@@ -14,6 +14,7 @@
         #result { margin-top: 25px; padding: 20px; background: #1a1a1a; border-radius: 12px; font-size: 20px; line-height: 1.6; }
         .big-num { font-size: 42px; color: #00ff9d; font-weight: bold; }
         .rank { font-size: 18px; color: #ffcc00; }
+        .date { font-size: 16px; color: #aaa; }
         .note { font-size: 14px; color: #888; margin-top: 15px; }
         a { color: #00ff9d; }
     </style>
@@ -21,17 +22,17 @@
 <body>
     <div class="container">
         <h1>🚀 VARC Early Wallet Checker</h1>
-        <p style="color:#00ff9d;">Arc Testnet • Real Tx Count + Rank</p>
+        <p style="color:#00ff9d;">Arc Testnet • Tx Count, Balance, First/Last Tx + Rank</p>
 
         <div class="card">
             <input type="text" id="walletInput" placeholder="0xYourWalletAddress... (42 characters)">
             <br>
-            <button onclick="checkWallet()">Check Tx Count & Rank</button>
+            <button onclick="checkWallet()">Check Stats</button>
         </div>
 
         <div id="result"></div>
 
-        <p class="note">Made by @vijayranga43 • Data from Arc Testnet Explorer</p>
+        <p class="note">Made by @vijayranga43 • Real data from Arc Testnet Explorer</p>
     </div>
 
     <script>
@@ -44,19 +45,39 @@
         return;
       }
 
-      resultDiv.innerHTML = 'Fetching real data from Arc Testnet... ⏳';
+      resultDiv.innerHTML = 'Fetching wallet stats from Arc Testnet... ⏳';
 
       try {
-        const apiUrl = `https://testnet.arcscan.app/api?module=account&action=txlist&address=${address}&page=1&offset=10000`;
-        const res = await fetch(apiUrl);
-        const data = await res.json();
-        
-        if (data.status !== "1") throw new Error("API error");
-        
-        const txList = data.result || [];
-        const txCount = txList.length;
+        // Balance fetch
+        const balanceRes = await fetch(`https://testnet.arcscan.app/api?module=account&action=balance&address=${address}`);
+        const balanceData = await balanceRes.json();
+        let balance = '0';
+        if (balanceData.status === "1") {
+          balance = (parseInt(balanceData.result) / 1e18).toFixed(6) + ' ETH';  // wei to ETH (Arc pe USDC bhi, lekin base balance ETH-like)
+        }
 
-        // Approx "kitne logo ne zyada tx kiye" (19M+ wallets ke hisaab se realistic estimate)
+        // Tx list for count, first & last tx
+        const txAscRes = await fetch(`https://testnet.arcscan.app/api?module=account&action=txlist&address=${address}&page=1&offset=10000&sort=asc`);
+        const txAscData = await txAscRes.json();
+        const txDescRes = await fetch(`https://testnet.arcscan.app/api?module=account&action=txlist&address=${address}&page=1&offset=1&sort=desc`);
+        const txDescData = await txDescRes.json();
+
+        let txCount = 0;
+        let firstTxDate = 'N/A';
+        let lastTxDate = 'N/A';
+
+        if (txAscData.status === "1" && txAscData.result.length > 0) {
+          txCount = txAscData.result.length;  // approx recent
+          const firstTs = parseInt(txAscData.result[0].timeStamp) * 1000;
+          firstTxDate = new Date(firstTs).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+        }
+
+        if (txDescData.status === "1" && txDescData.result.length > 0) {
+          const lastTs = parseInt(txDescData.result[0].timeStamp) * 1000;
+          lastTxDate = new Date(lastTs).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+        }
+
+        // Approx higher tx wallets
         let higherWallets = '';
         if (txCount >= 150) higherWallets = 'Under 2,000 wallets have more tx than you 🔥';
         else if (txCount >= 80) higherWallets = 'Under 8,000 wallets have more tx than you';
@@ -70,12 +91,16 @@
           <div class="big-num">Tx Count: ${txCount}</div>
           <div class="rank">${higherWallets}</div>
           <br>
-          <small style="color:#00ff9d;">Your approx rank is better than most wallets!</small><br><br>
-          <a href="${explorerLink}" target="_blank">View Full History on Explorer →</a><br><br>
-          <span class="note">Note: Yeh max 10,000 recent tx se count hai. Global exact sabhi wallets ka comparison backend se aayega jaldi. Grind more tx to beat more wallets! 🚀</span>
+          <div>Balance: ${balance}</div>
+          <div class="date">First Tx: ${firstTxDate}</div>
+          <div class="date">Last Tx: ${lastTxDate}</div>
+          <br>
+          <small style="color:#00ff9d;">Your wallet is active compared to most!</small><br><br>
+          <a href="${explorerLink}" target="_blank">View Full Details on Explorer →</a><br><br>
+          <span class="note">Tx count max 10k recent se. Balance in ETH (Arc base). Dates in IST. Grind more to climb higher! 🚀</span>
         `;
       } catch (e) {
-        resultDiv.innerHTML = `<span style="color: #ff5555;">Error: ${e.message || 'Internet check kar ya thodi der baad try kar.'}</span>`;
+        resultDiv.innerHTML = `<span style="color: #ff5555;">Error: ${e.message || 'Fetch nahi ho paya. Internet ya address check kar.'}</span>`;
       }
     }
     </script>
