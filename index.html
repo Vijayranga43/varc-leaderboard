@@ -1,171 +1,106 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Arc Testnet Leaderboard 🔥</title>
+  <title>Arc Testnet Leaderboard & Wallet Checker</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style> body { font-family: system-ui; } </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; background: linear-gradient(to bottom, #0f172a, #020617); color: white; }
+    .arc-logo { width: 48px; height: 48px; } /* Placeholder for logo */
+  </style>
 </head>
-<body class="bg-gray-950 text-white p-8">
-  <div class="max-w-4xl mx-auto">
-    <h1 class="text-4xl font-bold text-center mb-2">Arc Testnet Leaderboard 🔥</h1>
-    <p class="text-center text-gray-400 mb-8">Most Active Wallets by Transaction Count</p>
-
-    <!-- SEARCH BAR -->
-    <div class="bg-gray-900 p-6 rounded-2xl mb-10">
-      <p class="text-lg mb-3">Apna Wallet Check Karo</p>
-      <div class="flex gap-3">
-        <input id="walletInput" 
-               type="text" 
-               placeholder="0x3600000000000000000000000000000000000000" 
-               class="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-5 py-3 text-white focus:outline-none focus:border-blue-500">
-        <button onclick="checkWallet()" 
-                class="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-xl font-semibold">
-          Check Rank & Tx
-        </button>
+<body class="min-h-screen bg-gradient-to-b from-slate-950 to-black text-white">
+  <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-10">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <!-- Arc Testnet Logo (use official or placeholder) -->
+        <img src="https://www.arc.network/logo.png" alt="Arc Testnet Logo" class="arc-logo rounded-full"> <!-- Replace with actual logo URL if you find one; else use placeholder or SVG -->
+        <h1 class="text-2xl font-bold">Arc Testnet Leaderboard</h1>
       </div>
-      <div id="result" class="mt-6 text-lg font-medium"></div>
+      <p class="text-slate-400 text-sm">Powered by Blockscout Explorer</p>
     </div>
+  </header>
 
-    <!-- TOP 10 TABLE -->
-    <h2 class="text-2xl mb-4">Top 10 Most Active Wallets</h2>
-    <div class="overflow-x-auto">
-      <table class="w-full border-collapse">
-        <thead>
-          <tr class="bg-gray-900">
-            <th class="p-4 text-left">Rank</th>
-            <th class="p-4 text-left">Wallet Address</th>
-            <th class="p-4 text-right">Tx Count</th>
-          </tr>
-        </thead>
-        <tbody id="leaderboard" class="text-gray-300">
-          <!-- JS se fill hoga -->
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <main class="max-w-6xl mx-auto px-6 py-10">
+    <section class="mb-12">
+      <h2 class="text-3xl font-bold text-center mb-6">Check Your Wallet Stats</h2>
+      <p class="text-center text-slate-400 mb-8">Enter your wallet address to view balance, transaction history, and more on Arc Testnet.</p>
+
+      <div class="bg-slate-800/60 backdrop-blur-lg border border-slate-700 rounded-2xl p-8 shadow-2xl max-w-2xl mx-auto">
+        <div class="flex flex-col sm:flex-row gap-4">
+          <input id="walletInput" 
+                 type="text" 
+                 placeholder="0xYourWalletAddressHere..." 
+                 class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-500">
+          <button onclick="checkWallet()" 
+                  class="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-xl font-semibold transition-all shadow-md">
+            Check Wallet
+          </button>
+        </div>
+        <div id="result" class="mt-8"></div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-3xl font-bold text-center mb-8">Top 10 Most Active Wallets</h2>
+      <div class="overflow-x-auto bg-slate-800/60 backdrop-blur-lg border border-slate-700 rounded-2xl shadow-2xl">
+        <table class="w-full border-collapse">
+          <thead class="bg-slate-900">
+            <tr>
+              <th class="p-5 text-left font-semibold">Rank</th>
+              <th class="p-5 text-left font-semibold">Wallet Address</th>
+              <th class="p-5 text-right font-semibold">Transaction Count</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard" class="text-slate-300">
+            <!-- Filled by JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-slate-950 border-t border-slate-800 mt-12 py-6 text-center text-slate-500 text-sm">
+    <p>Arc Testnet Leaderboard & Wallet Checker • Data from Arc Testnet Explorer • Not affiliated with official Arc team</p>
+  </footer>
 
   <script>
-  // Top 10 latest data (site se copy kar ke update kar dena har baar)
-  const top10 = [
-    { rank: 1, wallet: "0x360000...000000", tx: 11 },
-    { rank: 2, wallet: "0xff5cb2...a6e8d1", tx: 12 },
-    { rank: 3, wallet: "0xf3bf07...35b9d3", tx: 5 },
-    { rank: 4, wallet: "0x2d84d7...add457", tx: 4 },
-    { rank: 5, wallet: "0x737422...141023", tx: 4 },
-    { rank: 6, wallet: "0x2d7863...1d59c2", tx: 3 },
-    { rank: 7, wallet: "0xa3d9fb...f468a2", tx: 3 },
-    { rank: 8, wallet: "0xbf4479...94275f", tx: 3 },
-    { rank: 9, wallet: "0x65a860...8bfd98", tx: 2 },
-    { rank: 10, wallet: "0x363cc7...e7ba43", tx: 2 }
-  ];
+    // Update top10 with latest (copy from your site)
+    const top10 = [
+      { rank: 1, wallet: "0x360000...000000", tx: 11 },
+      { rank: 2, wallet: "0xff5cb2...a6e8d1", tx: 12 },
+      // ... add all 10 from your current site
+    ];
 
-  // Table render
-  function renderTable() {
-    const tbody = document.getElementById('leaderboard');
-    tbody.innerHTML = '';
-    top10.forEach(item => {
-      const row = `<tr class="border-t border-gray-800 hover:bg-gray-900">
-        <td class="p-4 font-bold">#${item.rank}</td>
-        <td class="p-4 font-mono">${item.wallet}</td>
-        <td class="p-4 text-right font-bold">${item.tx}</td>
-      </tr>`;
-      tbody.innerHTML += row;
-    });
-  }
-
-  // Updated checkWallet with all requested details
-  async function checkWallet() {
-    const input = document.getElementById('walletInput').value.trim().toLowerCase();
-    const resultDiv = document.getElementById('result');
-    
-    if (!input || !input.startsWith('0x') || input.length !== 42) {
-      resultDiv.innerHTML = `<span class="text-red-500">❌ Valid 42-character 0x address daalo bhai</span>`;
-      return;
+    function renderTable() {
+      const tbody = document.getElementById('leaderboard');
+      tbody.innerHTML = '';
+      top10.forEach(item => {
+        const row = `<tr class="border-t border-slate-700 hover:bg-slate-700/50 transition-colors">
+          <td class="p-5 font-bold text-blue-400">#${item.rank}</td>
+          <td class="p-5 font-mono">${item.wallet}</td>
+          <td class="p-5 text-right font-bold">${item.tx}</td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
     }
 
-    resultDiv.innerHTML = `<span class="text-yellow-500">⏳ Full details fetch kar rahe hain Arc Testnet se...</span>`;
-
-    try {
-      const explorerLink = `https://testnet.arcscan.app/address/${input}`;
-
-      // Parallel API calls
-      const [addrRes, lastTxRes, firstTxRes] = await Promise.all([
-        fetch(`https://testnet.arcscan.app/api/v2/addresses/${input}`),
-        fetch(`https://testnet.arcscan.app/api?module=account&action=txlist&address=${input}&sort=desc&page=1&offset=1`),
-        fetch(`https://testnet.arcscan.app/api?module=account&action=txlist&address=${input}&sort=asc&page=1&offset=1`)
-      ]);
-
-      const addrData = await addrRes.json();
-      const lastData = await lastTxRes.json();
-      const firstData = await firstTxRes.json();
-
-      // Balance (coin_balance in wei → ARC)
-      const balanceWei = addrData.coin_balance || "0";
-      let balanceARC = "0";
-      if (balanceWei !== "0") {
-        balanceARC = (BigInt(balanceWei) / BigInt(10**18)).toString();
-      }
-
-      // Last Tx
-      let lastHash = "N/A", lastDate = "N/A";
-      if (lastData.status === "1" && lastData.result && lastData.result.length > 0) {
-        const tx = lastData.result[0];
-        lastHash = tx.hash;
-        lastDate = new Date(Number(tx.timeStamp) * 1000).toLocaleString('en-IN', {
-          day: 'numeric', month: 'short', year: 'numeric',
-          hour: '2-digit', minute: '2-digit', hour12: true
-        });
-      }
-
-      // First Tx
-      let firstHash = "N/A", firstDate = "N/A";
-      if (firstData.status === "1" && firstData.result && firstData.result.length > 0) {
-        const tx = firstData.result[0];
-        firstHash = tx.hash;
-        firstDate = new Date(Number(tx.timeStamp) * 1000).toLocaleString('en-IN', {
-          day: 'numeric', month: 'short', year: 'numeric',
-          hour: '2-digit', minute: '2-digit', hour12: true
-        });
-      }
-
-      resultDiv.innerHTML = `
-        <div class="bg-green-900 border border-green-600 rounded-2xl p-6 mt-6 text-left shadow-lg">
-          <p class="text-green-400 text-xl font-bold mb-4">Wallet Details</p>
-          <p class="mb-4"><strong>Address:</strong> <span class="font-mono break-all">${input}</span></p>
-          
-          <p class="text-2xl font-bold mb-4">Balance: ${balanceARC} ARC</p>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div class="bg-gray-800 p-4 rounded-xl">
-              <p class="text-gray-300 font-semibold">First Transaction</p>
-              <p class="font-mono text-sm break-all mt-1">${firstHash}</p>
-              <p class="text-green-400 mt-1">${firstDate || 'No transactions yet'}</p>
-            </div>
-            <div class="bg-gray-800 p-4 rounded-xl">
-              <p class="text-gray-300 font-semibold">Last Transaction</p>
-              <p class="font-mono text-sm break-all mt-1">${lastHash}</p>
-              <p class="text-green-400 mt-1">${lastDate || 'No transactions yet'}</p>
-            </div>
-          </div>
-          
-          <div class="mt-4 pt-4 border-t border-green-700">
-            <p class="font-bold text-lg mb-3">Total Transactions: <span class="text-yellow-300">Explorer pe exact count dekho</span></p>
-            <a href="${explorerLink}" target="_blank" rel="noopener noreferrer" 
-               class="inline-block bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl font-semibold text-white">
-              🔗 Open Arc Explorer → Full Tx History + Total Count
-            </a>
-            <p class="text-sm text-gray-400 mt-2">Yahan "Transactions" section mein total count clearly dikhega.</p>
-          </div>
-        </div>
-      `;
-    } catch (err) {
-      resultDiv.innerHTML = `<span class="text-red-500">❌ Error: Network ya address issue. <a href="https://testnet.arcscan.app/address/${input}" target="_blank" class="underline">Explorer pe check karo</a></span>`;
-      console.error(err);
+    async function checkWallet() {
+      // Your previous checkWallet function here (with English text)
+      // Example: Change all messages to English
+      // resultDiv.innerHTML = `<span class="text-yellow-500">Fetching details from Arc Testnet...</span>`;
+      // And in result card: "Wallet Details", "Balance: ${balanceARC} ARC", etc.
+      // Keep the logic same as last version you had
+      // ...
+      // For total tx: Keep the prominent explorer link button as before
     }
-  }
 
-  // Page load pe table dikhao
-  renderTable();
-</script>
+    renderTable();
+  </script>
+</body>
+</html>            
+           
