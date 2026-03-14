@@ -41,45 +41,41 @@
         <input type="text" id="walletInput" placeholder="0xYourWalletAddress..." 
                style="width: 90%; padding: 12px; background: #222; color: white; border: 1px solid #00ff9d;">
         <br>
-        <button onclick="checkWallet()">Check Tx Count & Approx Rank</button>
-        <div id="result"></div>
-    </div>
-
-    <p>Made with ❤️ by me | Suggestions? DM me!</p>
-
-<script>
-async function checkWallet() {
+        async function checkWallet() {
   const address = document.getElementById('walletInput').value.trim();
   const resultDiv = document.getElementById('result');
   
-  if (!address || !address.startsWith('0x')) {
-    resultDiv.innerHTML = '<span style="color:red;">Sahi 0x address daal bhai!</span>';
+  if (!address || !address.startsWith('0x') || address.length !== 42) {
+    resultDiv.innerHTML = '<span style="color: #ff5555;">Invalid address! Use valid 0x... (42 chars).</span>';
     return;
   }
 
-  resultDiv.innerHTML = 'Fetching real data from Arc Testnet... ⏳';
+  resultDiv.innerHTML = 'Fetching real Tx count from Arc Testnet Explorer... ⏳';
 
   try {
-    const res = await fetch(`https://testnet.arcscan.app/api?module=account&action=txlistcount&address=${address}`);
+    // Use txlist endpoint (page 1, offset 10000 max per call - for most wallets enough)
+    const res = await fetch(`https://testnet.arcscan.app/api?module=account&action=txlist&address=${address}&page=1&offset=10000&sort=asc`);
     const data = await res.json();
-    const txCount = parseInt(data.result) || 0;
+    
+    if (data.status !== "1") {
+      throw new Error(data.message || 'API error');
+    }
+    
+    const txList = data.result || [];
+    const txCount = txList.length;  // Yeh approximate hai agar >10k tx hain to, lekin Arc testnet pe rare
 
-    let approxRank = '';
-    if (txCount > 100) approxRank = '🔥 Approx Top 5,000+ (bahut active!)';
-    else if (txCount > 20) approxRank = '👍 Approx Top 50,000+ (achha grind!)';
-    else if (txCount > 11) approxRank = '✅ Top 10 se better – rank upar aa sakta hai';
-    else approxRank = '📉 Top 10 mein nahi (11 tx wale top pe). Zyada tx kar!';
+    let approxRankMsg = '';
+    if (txCount >= 100) approxRankMsg = '🔥 Very Active – Likely Top 5,000+!';
+    else if (txCount >= 20) approxRankMsg = '👍 Solid Grind – Approx Top 50,000+!';
+    else if (txCount >= 5) approxRankMsg = '✅ Better than many – Keep pushing!';
+    else approxRankMsg = '📉 Start grinding! More tx to rank up.';
 
     resultDiv.innerHTML = `
-      <strong style="color:#00ff9d;">Your Real Tx Count: ${txCount}</strong><br><br>
-      <strong>Approx Rank: ${approxRank}</strong><br><br>
-      <small>Global exact rank (#100001 jaisa) abhi nahi dikh sakta (19+ million wallets hain).<br>
-      Yeh real Arc explorer se aa raha hai. Grind more to climb up! 🚀</small>
+      <strong style="color: #00ff9d; font-size: 24px;">Tx Count: ${txCount}</strong><br><br>
+      <strong>Approx Rank Estimate: ${approxRankMsg}</strong><br><br>
+      <span class="note">Note: Yeh recent tx se count hai (max ~10k shown). Agar bohot zyada tx hain to explorer pe full check kar: <a href="https://testnet.arcscan.app/address/${address}" target="_blank">View on Explorer</a>. Exact global rank nahi possible abhi (19M+ wallets). Grind more! 🚀</span>
     `;
-  } catch(e) {
-    resultDiv.innerHTML = '<span style="color:red;">Error! Internet check kar ya address sahi daal.</span>';
+  } catch (error) {
+    resultDiv.innerHTML = '<span style="color: #ff5555;">Error: ' + (error.message || 'Could not fetch data. Try again or check address.') + '</span>';
   }
 }
-</script>
-</body>
-</html>
