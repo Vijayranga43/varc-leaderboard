@@ -6,52 +6,48 @@
   <title>Arc Testnet Leaderboard & Wallet Checker</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: 'Inter', system-ui, sans-serif; background: linear-gradient(to bottom, #0f172a, #020617); }
+    body { font-family: system-ui, sans-serif; background: #0f172a; color: white; }
   </style>
 </head>
-<body class="min-h-screen bg-gradient-to-b from-slate-950 to-black text-white">
-  <header class="bg-slate-900/80 border-b border-slate-700 sticky top-0">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <!-- Arc Logo (placeholder - replace if you have better URL) -->
-        <img src="https://via.placeholder.com/48/3b82f6/ffffff?text=Arc" alt="Arc Testnet" class="rounded-full">
-        <h1 class="text-2xl font-bold">Arc Testnet Leaderboard</h1>
-      </div>
-      <p class="text-slate-400">Live on Testnet</p>
+<body class="p-6 max-w-4xl mx-auto">
+  <h1 class="text-4xl font-bold text-center mb-2">Arc Testnet Leaderboard</h1>
+  <p class="text-center text-gray-400 mb-8">Most Active Wallets + Wallet Stats Checker</p>
+
+  <!-- Search Section -->
+  <div class="bg-gray-800 p-6 rounded-2xl mb-10">
+    <p class="text-lg mb-3">Check Your Wallet</p>
+    <div class="flex gap-3">
+      <input id="walletInput" 
+             type="text" 
+             placeholder="0x..." 
+             class="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-5 py-3 text-white focus:outline-none focus:border-blue-500">
+      <button onclick="checkWallet()" 
+              class="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-xl font-semibold">
+        Check
+      </button>
     </div>
-  </header>
+    <div id="result" class="mt-6"></div>
+  </div>
 
-  <main class="max-w-6xl mx-auto px-6 py-10">
-    <section class="mb-12 text-center">
-      <h2 class="text-3xl font-bold mb-4">Wallet Checker</h2>
-      <p class="text-slate-400 mb-6">Enter your wallet address to view stats on Arc Testnet.</p>
-      <div class="max-w-xl mx-auto bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
-        <div class="flex flex-col sm:flex-row gap-4">
-          <input id="walletInput" type="text" placeholder="0x..." class="flex-1 bg-slate-900 border border-slate-600 rounded-xl px-5 py-3 focus:outline-none focus:border-blue-500">
-          <button onclick="checkWallet()" class="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-xl font-semibold">Check</button>
-        </div>
-        <div id="result" class="mt-6"></div>
-      </div>
-    </section>
-
-    <section>
-      <h2 class="text-3xl font-bold text-center mb-6">Top 10 Active Wallets</h2>
-      <div class="overflow-x-auto bg-slate-800/50 border border-slate-700 rounded-2xl">
-        <table class="w-full">
-          <thead class="bg-slate-900">
-            <tr>
-              <th class="p-4 text-left">Rank</th>
-              <th class="p-4 text-left">Address</th>
-              <th class="p-4 text-right">Tx Count</th>
-            </tr>
-          </thead>
-          <tbody id="leaderboard"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+  <!-- Leaderboard Table -->
+  <h2 class="text-2xl mb-4">Top 10 Most Active Wallets</h2>
+  <div class="overflow-x-auto">
+    <table class="w-full border-collapse">
+      <thead>
+        <tr class="bg-gray-900">
+          <th class="p-4 text-left">Rank</th>
+          <th class="p-4 text-left">Wallet Address</th>
+          <th class="p-4 text-right">Tx Count</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboard" class="text-gray-300">
+        <!-- JS fills this -->
+      </tbody>
+    </table>
+  </div>
 
   <script>
+    // Update this array with current top 10 from the site (copy truncated addresses + tx)
     const top10 = [
       { rank: 1, wallet: "0x360000...000000", tx: 11 },
       { rank: 2, wallet: "0xff5cb2...a6e8d1", tx: 12 },
@@ -63,31 +59,95 @@
       { rank: 8, wallet: "0xbf4479...94275f", tx: 3 },
       { rank: 9, wallet: "0x65a860...8bfd98", tx: 2 },
       { rank: 10, wallet: "0x363cc7...e7ba43", tx: 2 }
-    ];  // Update from live site if changed
+    ];
 
     function renderTable() {
       const tbody = document.getElementById('leaderboard');
       tbody.innerHTML = '';
       top10.forEach(item => {
-        tbody.innerHTML += `<tr class="border-t border-slate-700 hover:bg-slate-700/50">
-          <td class="p-4 font-bold text-blue-400">#${item.rank}</td>
+        const row = `<tr class="border-t border-gray-800 hover:bg-gray-900">
+          <td class="p-4 font-bold">#${item.rank}</td>
           <td class="p-4 font-mono">${item.wallet}</td>
-          <td class="p-4 text-right">${item.tx}</td>
+          <td class="p-4 text-right font-bold">${item.tx}</td>
         </tr>`;
+        tbody.innerHTML += row;
       });
     }
 
     async function checkWallet() {
-      const input = document.getElementById('walletInput').value.trim();
-      const result = document.getElementById('result');
-      if (!input.startsWith('0x') || input.length !== 42) {
-        result.innerHTML = '<p class="text-red-500">Invalid address</p>';
+      const input = document.getElementById('walletInput').value.trim().toLowerCase();
+      const resultDiv = document.getElementById('result');
+      
+      if (!input || !input.startsWith('0x') || input.length !== 42) {
+        resultDiv.innerHTML = `<span class="text-red-500">Invalid wallet address (must be 0x... 42 chars)</span>`;
         return;
       }
-      result.innerHTML = '<p class="text-yellow-500">Loading...</p>';
-      // Your full checkWallet logic here (from previous messages - balance, first/last tx, explorer link for total tx)
-      // Example placeholder
-      result.innerHTML = '<p class="text-green-400">Wallet: ' + input + '<br>Details loading... (add your full code)</p>';
+
+      resultDiv.innerHTML = `<span class="text-yellow-500">Fetching from Arc Testnet...</span>`;
+
+      try {
+        const explorerLink = `https://testnet.arcscan.app/address/${input}`;
+
+        const [addrRes, lastTxRes, firstTxRes] = await Promise.all([
+          fetch(`https://testnet.arcscan.app/api/v2/addresses/${input}`),
+          fetch(`https://testnet.arcscan.app/api?module=account&action=txlist&address=${input}&sort=desc&page=1&offset=1`),
+          fetch(`https://testnet.arcscan.app/api?module=account&action=txlist&address=${input}&sort=asc&page=1&offset=1`)
+        ]);
+
+        const addrData = await addrRes.json();
+        const lastData = await lastTxRes.json();
+        const firstData = await firstTxRes.json();
+
+        const balanceWei = addrData.coin_balance || "0";
+        let balanceARC = "0";
+        if (balanceWei !== "0") {
+          balanceARC = (BigInt(balanceWei) / BigInt(10**18)).toString();
+        }
+
+        let lastHash = "N/A", lastDate = "N/A";
+        if (lastData.status === "1" && lastData.result && lastData.result.length > 0) {
+          const tx = lastData.result[0];
+          lastHash = tx.hash;
+          lastDate = new Date(Number(tx.timeStamp) * 1000).toLocaleString();
+        }
+
+        let firstHash = "N/A", firstDate = "N/A";
+        if (firstData.status === "1" && firstData.result && firstData.result.length > 0) {
+          const tx = firstData.result[0];
+          firstHash = tx.hash;
+          firstDate = new Date(Number(tx.timeStamp) * 1000).toLocaleString();
+        }
+
+        resultDiv.innerHTML = `
+          <div class="bg-green-900 border border-green-600 rounded-xl p-5 mt-4">
+            <p class="text-green-400 font-bold mb-3">Wallet Details</p>
+            <p><strong>Address:</strong> ${input}</p>
+            <p class="text-xl mt-2"><strong>Balance:</strong> ${balanceARC} ARC</p>
+            
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p class="text-gray-300">First Transaction</p>
+                <p class="font-mono text-sm break-all">${firstHash}</p>
+                <p>${firstDate}</p>
+              </div>
+              <div>
+                <p class="text-gray-300">Last Transaction</p>
+                <p class="font-mono text-sm break-all">${lastHash}</p>
+                <p>${lastDate}</p>
+              </div>
+            </div>
+            
+            <div class="mt-6">
+              <p class="font-bold">Total Transactions: Check on Explorer</p>
+              <a href="${explorerLink}" target="_blank" class="block mt-2 bg-blue-600 hover:bg-blue-700 text-center py-3 rounded-xl font-semibold">
+                View Full History & Exact Tx Count
+              </a>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        resultDiv.innerHTML = `<span class="text-red-500">Error fetching data. Try on <a href="https://testnet.arcscan.app/address/${input}" target="_blank" class="underline">Arc Explorer</a></span>`;
+      }
     }
 
     renderTable();
